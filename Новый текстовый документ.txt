@@ -1,0 +1,538 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <locale.h>
+#include <iomanip>
+#include <windows.h>
+#include <iostream>
+#include <iomanip>
+
+using namespace std;
+
+struct list
+{
+    char lastname[20];
+    char name[20];
+    char ptnmic[20];
+    char number[13];
+    char adress[40];
+    char status[30];
+    int income;
+    int position;
+    struct list *next;
+    struct list *prev;
+};
+
+struct list *head;
+void AddList();
+void DeleteList(int position);
+void PrintList();
+void FindLastname();
+void Redact();
+void Adress();
+void Married();
+void Income();
+void FindByNum();
+void SortByLastname();
+
+int main()
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    int position, x;
+    do
+    {
+        system("cls");
+        cout << "1. Добавить элемент\n";
+        cout << "2. Удалить элемент\n";
+        cout << "3. Вывести список\n";
+        cout << "4. Поиск по фамилии\n";
+        cout << "5. Редактирование данных\n";
+        cout << "6. Вычислить количество людей на определенной улице\n";
+        cout << "7. Список женатых\n";
+        cout << "8. Поиск людей с доходом выше заданой нормы\n";
+        cout << "9. Поиск по первым трем цифрам номера телефона\n";
+        cout << "10. Сортировка по фамилии\n";
+        cout << "0. Выйти\n";
+        cout << "\nНомер операции > ";
+        cin >> x;
+        switch (x)
+            {
+                case 1:
+                    AddList();
+                    break;
+                case 2:
+                    printf("Позиция > ");
+                    scanf("%d", &position);
+                    DeleteList(position);
+                    break;
+                case 3:
+                    PrintList();
+                    break;
+                case 4:
+                    FindLastname();
+                    break;
+                case 5:
+                    Redact();
+                    break;
+                case 6:
+                    Adress();
+                    break;
+                case 7:
+                    Married();
+                    break;
+                case 8:
+                    Income();
+                    break;
+                case 9:
+                    FindByNum();
+                    break;
+                case 10:
+                    SortByLastname();
+                    break;
+            }
+        }while(x != 0);
+}
+
+void AddList()
+{
+    system("cls");
+    int k = 1;
+    int position = 0;
+    do
+    {
+       struct list *node = (struct list *)malloc(sizeof(struct list));
+       node->position = ++position;
+       cout << "Фамилия: ";
+       cin >> node->lastname;
+       cout << "Имя: ";
+       cin >> node->name;
+       cout << "Отчество: ";
+       cin >> node->ptnmic;
+       cout << "Номер: ";
+       cin >> node->number;
+       cout << "Адресс: ";
+       cin >> node->adress;
+       cout << "Cемейный статус: ";
+       cin >> node->status;
+       cout << "Доход: ";
+       cin >> node->income;
+       if (head == NULL)
+       {
+           node->next = node;
+           node->prev = node;
+           head = node;
+       }
+       else
+       {
+           struct list *p = head;
+           for(int i = position; i > 1; i--) p = p->next;
+           p->prev->next = node;
+           node->prev = p->prev;
+           node->next = p;
+           p->prev = node;
+       }
+       printf("\nЭлемент добавлен...\n\n");
+       cout << "Продолжить? (1 - да, 2 - нет)";
+       cin >> k;
+       if (k == 1)
+            system("cls");
+    }while(k == 1);
+}
+
+void DeleteList(int position)
+{
+    if (head == NULL)
+    {
+        printf("\nСписок пуст\n\n");
+    }
+    if (head == head->next)
+    {
+        free(head);
+        head = NULL;
+    }
+    else
+    {
+        struct list *a = head;
+        for (int i = position; i > 1; i--) a = a->next;
+        if (a == head) head = a->next;
+        a->prev->next = a->next;
+        a->next->prev = a->prev;
+        free(a);
+    }
+    printf("\nЭлемент удален...\n\n");
+}
+
+void PrintList()
+{
+    system("cls");
+    if (head==NULL) cout << "\nСписок пуст\n\n";
+    else
+    {
+        struct list *a = head;
+        cout << setw( 10 ) << left << "Позиция"
+             << setw( 15 ) << "Фамилия"
+             << setw( 15 ) << "Имя"
+             << setw( 15 ) << "Отчество"
+             << setw( 13 ) << "Номер"
+             << setw( 20 ) << "Адресс"
+             << setw( 20 ) << "Семейный статус"
+             << setw( 10 ) << "Доход"
+             << endl;
+        do
+        {
+            cout << setw( 10 ) << left << a->position
+                 << setw( 15 ) << a->lastname
+                 << setw( 15 ) << a->name
+                 << setw( 15 ) << a->ptnmic
+                 << setw( 13 ) << a->number
+                 << setw( 20 ) << a->adress
+                 << setw( 20 ) << a->status
+                 << setw( 10 ) << a->income
+                 << endl;
+            a = a->next;
+        }while(a != head);
+        printf("\n\n");
+    }
+}
+
+void FindLastname()
+{
+    system("cls");
+    char lastname1[20];
+    int pr = 1;
+    int k = 1;
+    do
+    {
+        cout << "Введите фамилию: ";
+        cin >> lastname1;
+        if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        struct list *a = head;
+        do
+        {
+            if (strcmp(a->lastname, lastname1) == 0)
+            {
+                pr = 2;
+                cout << endl;
+                cout << setw( 10 ) << left << "Позиция"
+                 << setw( 15 ) << "Фамилия"
+                 << setw( 15 ) << "Имя"
+                 << setw( 15 ) << "Отчество"
+                 << setw( 13 ) << "Номер"
+                 << setw( 20 ) << "Адресс"
+                 << setw( 20 ) << "Семейный статус"
+                 << setw( 10 ) << "Доход"
+                 << endl;
+
+                cout << setw( 10 ) << left << a->position
+                 << setw( 15 ) << a->lastname
+                 << setw( 15 ) << a->name
+                 << setw( 15 ) << a->ptnmic
+                 << setw( 13 ) << a->number
+                 << setw( 20 ) << a->adress
+                 << setw( 20 ) << a->status
+                 << setw( 10 ) << a->income
+                 << endl;
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nПо данной фамилии никого не найдено.";
+    cout << "\nПродолжить? (1 - да, 2 - нет)";
+    cin >> k;
+    }while (k == 1);
+}
+
+void Redact()
+{
+    if (head == NULL)
+    {
+        printf("\nСписок пуст\n\n");
+    }
+    int position;
+    int k = 1;
+    int pr = 1;
+    do
+    {
+        struct list *a = head;
+        cout << "\nВведите позицию по которой хотите изменить данные: ";
+        cin >> position;
+        do
+        {
+            if (position == a->position)
+            {
+                cout << "\nВведите новые данные:\n";
+                cout << "Фамилия: ";
+                cin >> a->lastname;
+                cout << "Имя: ";
+                cin >> a->name;
+                cout << "Отчество: ";
+                cin >> a->ptnmic;
+                cout << "Номер: ";
+                cin >> a->number;
+                cout << "Адресс: ";
+                cin >> a->adress;
+                cout << "Cемейный статус: ";
+                cin >> a->status;
+                cout << "Доход: ";
+                cin >> a->income;
+                pr = 2;
+            }
+            a = a->next;
+        }while (a != head);
+    if (pr == 2)
+    {
+        cout << "\nДанные изменены.";
+    }
+    else
+    {
+        cout << "\n Неправильная позиция.";
+    }
+    cout << "\nПродолжить? (1 - да, 2 - нет) -> ";
+    cin >> k;
+    }while (k == 1);
+}
+
+void Adress()
+{
+    system("cls");
+    char adress1[20];
+    int pr = 1;
+    int k = 1;
+    int count = 0;
+    do
+    {
+        cout << "Введите адресс: ";
+        cin >> adress1;
+        if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        struct list *a = head;
+        do
+        {
+            if (strcmp(a->adress, adress1) == 0)
+            {
+                pr = 2;
+                count++;
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nПо данной улице никого не найдено.";
+    else
+        cout << "Количество людей на данной улице - " << count;
+    cout << "\nПродолжить? (1 - да, 2 - нет)";
+    cin >> k;
+    }while (k == 1);
+}
+
+void Married()
+{
+    system("cls");
+    int pr = 1;
+    int k = 2;
+    char married[20] = {"женат"};
+    char married1[20] = {"Женат"};
+    char married2[20] = {"Замужем"};
+    char married3[20] = {"замужем"};
+    do
+    {
+    if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        struct list *a = head;
+        do
+        {
+                cout << endl;
+                cout << setw( 10 ) << left << "Позиция"
+                 << setw( 15 ) << "Фамилия"
+                 << setw( 15 ) << "Имя"
+                 << setw( 15 ) << "Отчество"
+                 << setw( 13 ) << "Номер"
+                 << setw( 20 ) << "Адресс"
+                 << setw( 20 ) << "Семейный статус"
+                 << setw( 10 ) << "Доход"
+                 << endl;
+            if (strcmp(a->status, married) == 0 ||
+                strcmp(a->status, married1) == 0 ||
+                strcmp(a->status, married2) == 0 ||
+                strcmp(a->status, married3) == 0)
+            {
+                pr = 2;
+                cout << setw( 10 ) << left << a->position
+                 << setw( 15 ) << a->lastname
+                 << setw( 15 ) << a->name
+                 << setw( 15 ) << a->ptnmic
+                 << setw( 13 ) << a->number
+                 << setw( 20 ) << a->adress
+                 << setw( 20 ) << a->status
+                 << setw( 10 ) << a->income
+                 << endl;
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nПо данной фамилии никого не найдено.";
+    cout << "\nНажмите 1, чтобы выйти в главное меню. ";
+    cin >> k;
+    }while(k == 2);
+}
+
+void Income()
+{
+    system("cls");
+    int pr = 1;
+    int k = 2;
+    int income1;
+    do
+    {
+    if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        cout << "\nВведите минимальный доход: ";
+        cin >> income1;
+        struct list *a = head;
+        do
+        {
+                cout << endl;
+                cout << setw( 10 ) << left << "Позиция"
+                 << setw( 15 ) << "Фамилия"
+                 << setw( 15 ) << "Имя"
+                 << setw( 15 ) << "Отчество"
+                 << setw( 13 ) << "Номер"
+                 << setw( 20 ) << "Адресс"
+                 << setw( 20 ) << "Семейный статус"
+                 << setw( 10 ) << "Доход"
+                 << endl;
+            if (a->income > income1)
+            {
+                pr = 2;
+                cout << setw( 10 ) << left << a->position
+                 << setw( 15 ) << a->lastname
+                 << setw( 15 ) << a->name
+                 << setw( 15 ) << a->ptnmic
+                 << setw( 13 ) << a->number
+                 << setw( 20 ) << a->adress
+                 << setw( 20 ) << a->status
+                 << setw( 10 ) << a->income
+                 << endl;
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nЛюдей с большим доходом нет.";
+    cout << "\nНажмите 1, чтобы выйти в главное меню. ";
+    cin >> k;
+    }while(k == 2);
+}
+
+void FindByNum()
+{
+    system("cls");
+    int pr = 1;
+    int k = 2;
+    char num1[10];
+    do
+    {
+    if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        cout << "\nВведите первые 3 цифры номера: ";
+        cin >> num1;
+        struct list *a = head;
+        do
+        {
+                cout << endl;
+                cout << setw( 10 ) << left << "Позиция"
+                 << setw( 15 ) << "Фамилия"
+                 << setw( 15 ) << "Имя"
+                 << setw( 15 ) << "Отчество"
+                 << setw( 13 ) << "Номер"
+                 << setw( 20 ) << "Адресс"
+                 << setw( 20 ) << "Семейный статус"
+                 << setw( 10 ) << "Доход"
+                 << endl;
+            if (num1[0] == a->number[0] && num1[1] == a->number[1] && num1[2] == a->number[2])
+            {
+                pr = 2;
+                cout << setw( 10 ) << left << a->position
+                 << setw( 15 ) << a->lastname
+                 << setw( 15 ) << a->name
+                 << setw( 15 ) << a->ptnmic
+                 << setw( 13 ) << a->number
+                 << setw( 20 ) << a->adress
+                 << setw( 20 ) << a->status
+                 << setw( 10 ) << a->income
+                 << endl;
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nПо данным первым трем цифрам телефона людей не найдено.";
+    cout << "\nНажмите 1, чтобы выйти в главное меню. ";
+    cin >> k;
+    }while(k == 2);
+}
+
+void SortByLastname()
+{
+    system("cls");
+    int pr = 1;
+    int k = 2;
+    char temp1[20];
+    int temp2;
+    do
+    {
+    if (head==NULL)
+        {
+            cout << "\nСписок пуст\n\n";
+            k = 2;
+        }
+    else
+    {
+        struct list *a = head;
+        do
+        {
+            if (strcmp(a->lastname[0], a->next->lastname[0]) > 0)
+            {
+                pr = 2;
+                strcpy(temp1, a.next->lastname);
+                strcpy(a.next->lastname, a->lastname);
+                strcpy(a->lastname, temp1);
+            }
+            a = a->next;
+        }while(a != head);
+    }
+    if (pr == 1)
+        cout << "\nПо данным первым трем цифрам телефона людей не найдено.";
+    cout << "\nНажмите 1, чтобы выйти в главное меню. ";
+    cin >> k;
+    }while(k == 2);
+}
